@@ -306,13 +306,16 @@ for e in range(epochs):
 	scores = model.evaluate(tuningInstances,[tuningLabels_2dig,tuningLabels_4dig])
 	
 	outFile.write("Tuning...\n")
-	for k in range(2):
-		for i in range(len(model.metrics_names)):
-			outFile.write(model.metrics_names[i] + "\t" + str(scores[k][i]*100))
-			print("%s: %.2f%%" % (model.metrics_names[i], scores[k][i]*100))
-
-	currentScore = float(scores.pop())
-	if bestScore <= currentScore:
+	for i in range(len(model.metrics_names)):
+		outFile.write(model.metrics_names[i] + "\t" + str(scores[i]*100))
+		print("%s: %.2f%%" % (model.metrics_names[i], scores[i]*100))
+		
+	# x x 1 2 3 4 1 2 3 4
+	# 0 1 2 3 4 5 6 7 8 9
+	
+	currentScore1 = scores[5]
+	currentScore2 = scores[9]
+	if bestScore <= min(currentScore1,currentScore2):
 		fname = model_dir + 'best.model.h5'
 		model.save_weights(fname,overwrite=True)
 
@@ -342,9 +345,8 @@ for e in range(epochs):
 	'''
 	scores = model.evaluate(testingInstances,testingLabels)
 	outFile.write("Testing...\n")
-	for k in range(2):
-		for i in range(len(model.metrics_names)):
-			outFile.write(model.metrics_names[i] + "\t" + str(scores[k][i]*100))
-			print("%s: %.2f%%" % (model.metrics_names[i], scores[k][i]*100))
+	for i in range(len(model.metrics_names)):
+		outFile.write(model.metrics_names[i] + "\t" + str(scores[i]*100))
+		print("%s: %.2f%%" % (model.metrics_names[i], scores[i]*100))
 
 outFile.close()
