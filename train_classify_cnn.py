@@ -98,7 +98,7 @@ testingLabels_2dig = []
 testingLabels_4dig = []
 
 trainFile = codecs.open(trainFileName,encoding='latin-1')
-trainSentences = trainFile.read().lower().strip().split("\n")[1:]
+trainSentences = trainFile.read().lower().strip().split("\n")
 testFile = codecs.open(testFileName,encoding='latin-1')
 testSentences = testFile.read().lower().strip().split("\n")
 tuneFile = codecs.open(tuneFileName,encoding='latin-1')
@@ -288,7 +288,8 @@ for e in range(epochs):
 			labs = []
 			for j,score in enumerate(row):
 				if float(score) >= 0.5:
-					labs.append(labels[j])
+					if k == 0: labs.append(labels_2dig[j])
+					else: labs.append(labels_4dig[j])
 			labs = ",".join(labs)
 			outLabels[k].append(tuneSentences[i] + "\t" + labs)
 		
@@ -326,7 +327,8 @@ for e in range(epochs):
 			labs = []
 			for j,score in enumerate(row):
 				if float(score) >= 0.5:
-					labs.append(labels[j])
+					if k == 0: labs.append(labels_2dig[j])
+					else: labs.append(labels_4dig[j])
 			labs = ",".join(labs)
 			outLabels[k].append(testSentences[i] + "\t" + labs)
 		
