@@ -343,7 +343,7 @@ for e in range(epochs):
 	print(result)
 	outFile.write("Testing results: " + str(result) + "\n")
 	'''
-	scores = model.evaluate(testingInstances,testingLabels)
+	scores = model.evaluate(testingInstances,[testingLabels_2dig,testingLabels_4dig])
 	outFile.write("Testing...\n")
 	for i in range(len(model.metrics_names)):
 		outFile.write(model.metrics_names[i] + "\t" + str(scores[i]*100))
