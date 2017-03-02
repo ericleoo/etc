@@ -114,19 +114,19 @@ for instance in trainSentences:
 	sentence = instance.strip().split(",")[1].split(" ")
 	tempVocab.extend(sentence)
 	labels_2dig.append(instance.strip().split(",")[0][:2])
-	labels_4dig.append(instance.strip().split(",")[0][2:])
+	labels_4dig.append(instance.strip().split(",")[0][:])
 
 for instance in tuneSentences:
 	sentence = instance.strip().split(",")[1].split(" ")
 	tempVocab.extend(sentence)
 	labels_2dig.append(instance.strip().split(",")[0][:2])
-	labels_4dig.append(instance.strip().split(",")[0][2:])
+	labels_4dig.append(instance.strip().split(",")[0][:])
 
 for instance in testSentences:
 	sentence = instance.strip().split(",")[1].split(" ")
 	tempVocab.extend(sentence)
 	labels_2dig.append(instance.strip().split(",")[0][:2])
-	labels_4dig.append(instance.strip().split(",")[0][2:])
+	labels_4dig.append(instance.strip().split(",")[0][:])
 
 vocabCounter = Counter(tempVocab).most_common()
 for i in vocabCounter:
