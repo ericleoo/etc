@@ -151,7 +151,7 @@ for instance in trainSentences:
 		sentence[i] = vocab[word]
 	trainingInstances.append(sentence)
 	trainingLabels_2dig.append(labels_2dig.index(labs[:2]))
-	trainingLabels_4dig.append(labels_4dig.index(labs[2:]))
+	trainingLabels_4dig.append(labels_4dig.index(labs[:]))
 	if len(sentence) > maxLenSentence:
 		maxLenSentence = len(sentence)
 
@@ -165,7 +165,7 @@ for instance in tuneSentences:
 		sentence[i] = vocab[word]
 	tuningInstances.append(sentence)
 	tuningLabels_2dig.append(labels_2dig.index(labs[:2]))
-	tuningLabels_4dig.append(labels_4dig.index(labs[2:]))
+	tuningLabels_4dig.append(labels_4dig.index(labs[:]))
 
 print("Reading testing")
 for instance in testSentences:
@@ -177,7 +177,7 @@ for instance in testSentences:
 		sentence[i] = vocab[word]
 	testingInstances.append(sentence)
 	testingLabels_2dig.append(labels_2dig.index(labs[:2]))
-	testingLabels_4dig.append(labels_4dig.index(labs[2:]))
+	testingLabels_4dig.append(labels_4dig.index(labs[:]))
 
 if maxLenSentence > maxSequenceLength:
 	maxLenSentence = maxSequenceLength
@@ -222,20 +222,21 @@ testingInstances = sequence.pad_sequences(testingInstances,maxlen=maxLenSentence
 # graph subnet with one input and one output,
 # convolutional layers concateneted in parallel
 
-filter_sizes = (3, 4)
-dropout_prob = (0.25, 0.5)
-num_filters = 150
+filter_sizes = (3)
+dropout_prob = (0.2,0.2,0.2)
+num_filters = 100
 
 graph_in = Input(shape=(maxLenSentence, embeddingsDim))
 convs = []
 for fsz in filter_sizes:
     conv = Convolution1D(nb_filter=num_filters,
                          filter_length=fsz,
-                         border_mode='valid',
+                         border_mode='same',
                          activation='relu',
                          subsample_length=1)(graph_in)
     pool = MaxPooling1D(pool_length=2)(conv)
-    flatten = Flatten()(pool)
+    #flatten = Flatten()(pool)
+    flatten = LSTM(100)(pool)
     convs.append(flatten)
     
 if len(filter_sizes)>1:
@@ -249,17 +250,17 @@ graph = Model(input=graph_in, output=out)
 
 main_input = Input(shape = (maxLenSentence,), dtype = 'int32', name = 'main_input')
 x = Embedding(len(vocab), embeddingsDim, input_length=maxLenSentence)(main_input)
-#x = Dropout(dropout_prob[0])(x)
+x = Dropout(dropout_prob[0])(x)
 y = graph(x)
 x = Dense(hiddenSize)(y)
-x = Dropout(0.1)(x)
+x = Dropout(dropout_prob[1])(x)
 x = Activation('relu')(x)
 x = Dense(len(labels_2dig))(x)
 out1 = Activation('softmax')(x)
 
 x = Merge(mode = 'concat')([y,out1])
 x = Dense(hiddenSize)(x)
-x = Dropout(0.1)(x)
+x = Dropout(dropout_prob[2])(x)
 x = Activation('relu')(x)
 x = Dense(len(labels_4dig))(x)
 out2 = Activation('softmax')(x)
@@ -316,12 +317,12 @@ for e in range(epochs):
 	# x x 1 2 3 4 1 2 3 4
 	# 0 1 2 3 4 5 6 7 8 9
 	
-	currentScore1 = scores[5]
-	currentScore2 = scores[9]
-	if bestScore <= min(currentScore1,currentScore2):
+	if bestScore <= scores[9]:
+		bestScore = scores[9]
 		fname = model_dir + 'best.model.h5'
 		model.save_weights(fname,overwrite=True)
-
+	
+	'''
 	print("Predicting testing...")
 	
 	predictions = model.predict(testingInstances,batch_size=batchSize,verbose=verb)
@@ -341,15 +342,15 @@ for e in range(epochs):
 		fo = codecs.open('temp/output.' + outputName + '.test.' + str(e) + '_' + str(k) + '.txt','w',encoding='latin-1')
 		fo.write("\n".join(outLabels[k]))
 		fo.close()
-	'''
+	
 	result = os.popen('python evaluate.py temp/output.' + outputName + '.test.' + str(e) + '.txt').read().strip()
 	print(result)
 	outFile.write("Testing results: " + str(result) + "\n")
-	'''
+	
 	scores = model.evaluate(testingInstances,[testingLabels_2dig,testingLabels_4dig])
 	outFile.write("Testing...\n")
 	for i in range(len(model.metrics_names)):
 		outFile.write(model.metrics_names[i] + "\t" + str(scores[i]*100))
 		print("%s: %.2f%%" % (model.metrics_names[i], scores[i]*100))
-
+	'''
 outFile.close()
