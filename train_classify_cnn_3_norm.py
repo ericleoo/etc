@@ -147,6 +147,7 @@ for i,value in enumerate(vocab):
 vocab = vocabDict
 labels_2dig = list(set(labels_2dig))
 labels_4dig = list(set(labels_4dig))
+labels_6dig = list(set(labels_6dig))
 
 print("Reading training")
 for instance in trainSentences:
@@ -294,7 +295,7 @@ x = Dense(len(labels_6dig))(x)
 out3 = Activation('softmax')(x)
 
 model = Model(input = main_input, output = [out1,out2,out3])
-model.load_weights(model_dir+"best.model.h5")
+#model.load_weights(model_dir+"best.model.h5")
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['fmeasure'])
 
 # serialize model to JSON
