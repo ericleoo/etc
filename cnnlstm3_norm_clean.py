@@ -343,13 +343,13 @@ for e in range(epochs):
 		labs = []
 		for j,score in enumerate(row):
 			if float(score) >= 0.5:
-				labs.append(tuple(score,labels_6dig[j]))
+				labs.append(tuple([score,labels_6dig[j]]))
 		labs.sort(reverse=True)
-		labs = ",".join([it[0] for it in labs])
+		labs = ",".join([it[1] for it in labs])
 		outLabels.append(tuneSentences[i] + "\t" + labs)
 	
 	fo = codecs.open('temp/output.' + outputName + '.tune.' + str(e) +'.txt','w',encoding='latin-1')
-	fo.write("\n".join(outLabels[k]))
+	fo.write("\n".join(outLabels))
 	fo.close()
 		
 	'''
