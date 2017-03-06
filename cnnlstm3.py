@@ -368,7 +368,7 @@ for e in range(epochs):
 	Y_pred = []	
 		
 	for i in range(len(tuningInstances)):
-		softmax = pred[-1][i]
+		softmax = predictions[-1][i]
 		temp = sorted([(val,idx) for idx,val in enumerate(softmax)], reverse = True)
 		fnd = False
 		
